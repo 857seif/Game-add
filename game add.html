@@ -37,7 +37,6 @@ https://1cloudfile.com/part2
 ..."></textarea>
       <button class="btn mt-4 w-full" onclick="addGame()">➕ إضافة اللعبة</button>
       <button class="mt-3 w-full bg-green-600 hover:bg-green-700 rounded p-2" onclick="exportHTML()">⬇️ تصدير جميع الألعاب</button>
-      <button class="mt-3 w-full bg-red-600 hover:bg-red-700 rounded p-2" onclick="clearAll()">🗑️ مسح جميع الألعاب</button>
     </div>
     
     <div class="card">
@@ -49,12 +48,8 @@ https://1cloudfile.com/part2
   </div>
 
   <script>
-    let games = JSON.parse(localStorage.getItem('games')) || [];
-
-    function saveGames() {
-      localStorage.setItem('games', JSON.stringify(games));
-    }
-
+    let games = [];
+    
     function addGame() {
       const name = document.getElementById('gameName').value.trim();
       const img = document.getElementById('gameImage').value.trim();
@@ -68,7 +63,6 @@ https://1cloudfile.com/part2
       
       const game = { name, img, desc, links };
       games.push(game);
-      saveGames();
       renderGames();
       
       document.getElementById('gameName').value = '';
@@ -76,49 +70,36 @@ https://1cloudfile.com/part2
       document.getElementById('gameDesc').value = '';
       document.getElementById('gameLinks').value = '';
     }
-
-    function clearAll() {
-      if (confirm('هل أنت متأكد أنك تريد مسح جميع الألعاب؟')) {
-        games = [];
-        saveGames();
-        renderGames();
-      }
-    }
-
+    
     function renderGames() {
       const container = document.getElementById('gamesContainer');
       if (games.length === 0) {
         container.innerHTML = '<p>لا توجد ألعاب مضافة بعد.</p>';
         return;
       }
-
-      // نرسم الكروت
+      
       container.innerHTML = games.map((g, index) => `
         <div class="game-card border border-gray-700 p-3 rounded-xl">
           <h3 class="text-2xl font-bold mb-2 text-pink-400">${g.name}</h3>
-          <img src="${g.img}" alt="${g.name}" class="mb-3 game-img" data-index="${index}">
+          <img src="${g.img}" alt="${g.name}" class="mb-3" onclick="toggleDownloadLinks(${index})">
           ${g.desc ? `<p class="text-gray-300 mb-2">${g.desc}</p>` : ''}
-          <button class="show-download-btn toggle-btn" data-index="${index}">اظهار روابط التحميل</button>
+          <button class="show-download-btn" onclick="toggleDownloadLinks(${index})">اظهار روابط التحميل</button>
           <div class="download-links" id="downloadLinks${index}">
             ${g.links.map((l, i) => `<a href="${l}" target="_blank" class="download-btn">تحميل الجزء ${i+1}</a>`).join('')}
           </div>
         </div>
       `).join('');
-
-      // ربط الأحداث بعد الرسم
-      document.querySelectorAll('.toggle-btn, .game-img').forEach(el => {
-        el.addEventListener('click', e => {
-          const i = e.target.getAttribute('data-index');
-          toggleDownloadLinks(i);
-        });
-      });
     }
-
+    
     function toggleDownloadLinks(index) {
       const downloadLinks = document.getElementById(`downloadLinks${index}`);
-      downloadLinks.style.display = (downloadLinks.style.display === 'block') ? 'none' : 'block';
+      if (downloadLinks.style.display === 'block') {
+        downloadLinks.style.display = 'none';
+      } else {
+        downloadLinks.style.display = 'block';
+      }
     }
-
+    
     function exportHTML() {
       const gamesHTML = games.map((g, index) => `
         <div style="background:#141b2d;border-radius:1rem;padding:1rem;margin-bottom:1rem;color:white;">
@@ -149,9 +130,13 @@ body{background:#0b1221;color:white;font-family:'Cairo',sans-serif;padding:20px;
 <h1 style="text-align:center;color:#f472b6;">🎮 مكتبة الألعاب الخاصة بك</h1>
 ${gamesHTML}
 <script>
-function toggleDownloadLinksExported(index){
- const el=document.getElementById('downloadLinksExported'+index);
- el.style.display=(el.style.display==='block')?'none':'block';
+function toggleDownloadLinksExported(index) {
+  const downloadLinks = document.getElementById('downloadLinksExported' + index);
+  if (downloadLinks.style.display === 'block') {
+    downloadLinks.style.display = 'none';
+  } else {
+    downloadLinks.style.display = 'block';
+  }
 }
 <\/script>
 </body>
@@ -163,9 +148,6 @@ function toggleDownloadLinksExported(index){
       link.download = "games_site.html";
       link.click();
     }
-
-    // عند فتح الصفحة
-    renderGames();
   </script>
 </body>
 </html>
