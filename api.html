@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ادخل app id</title>
+    <style>
+        :root {
+            --primary: #1b2838;
+            --secondary: #2a475e;
+            --accent: #66c0f4;
+            --text: #c7d5e0;
+            --light: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--secondary);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .search-section {
+            background-color: var(--secondary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            font-size: 16px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background-color: var(--accent);
+            color: var(--primary);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #4ca8d8;
+        }
+        
+        .game-info {
+            display: none;
+            background-color: var(--secondary);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .banner-section {
+            margin-bottom: 20px;
+        }
+        
+        .game-banner {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .copy-btn {
+            background-color: #5c7e10;
+            margin-right: 10px;
+        }
+        
+        .copy-btn:hover {
+            background-color: #6e9422;
+        }
+        
+        .description-section {
+            margin-top: 20px;
+        }
+        
+        .game-description {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid var(--accent);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            display: none;
+            background-color: #a32c2c;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .examples {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .example-id {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ادخل  id </h1>
+            <p></p>
+        </header>
+        
+        <section class="search-section">
+            <div class="input-group">
+                <input type="text" id="gameId" placeholder=" ">
+                <button id="searchBtn">ابحث عن اللعبة</button>
+            </div>
+            <p>    </p>
+         
+        </section>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>جاري تحميل معلومات اللعبة...</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <section class="game-info" id="gameInfo">
+            <div class="banner-section">
+                <h2>بانر اللعبة</h2>
+                <img id="gameBanner" class="game-banner" src="" alt="بانر اللعبة">
+                <button class="copy-btn" id="copyBannerUrl">نسخ رابط البانر</button>
+                <a id="bannerLink" href="#" target="_blank"></a>
+            </div>
+            
+            <div class="description-section">
+                <h2>وصف اللعبة</h2>
+                <div id="gameDescription" class="game-description"></div>
+                <button class="copy-btn" id="copyDescription">نسخ الوصف</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBtn = document.getElementById('searchBtn');
+            const gameIdInput = document.getElementById('gameId');
+            const gameInfo = document.getElementById('gameInfo');
+            const gameBanner = document.getElementById('gameBanner');
+            const bannerLink = document.getElementById('bannerLink');
+            const gameDescription = document.getElementById('gameDescription');
+            const copyBannerUrlBtn = document.getElementById('copyBannerUrl');
+            const copyDescriptionBtn = document.getElementById('copyDescription');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const exampleIds = document.querySelectorAll('.example-id');
+            
+            // إضافة أحداث للأمثلة
+            exampleIds.forEach(example => {
+                example.addEventListener('click', function() {
+                    gameIdInput.value = this.getAttribute('data-id');
+                    fetchGameInfo(this.getAttribute('data-id'));
+                });
+            });
+            
+            // دالة للبحث عن معلومات اللعبة
+            searchBtn.addEventListener('click', function() {
+                const gameId = gameIdInput.value.trim();
+                
+                if (!gameId) {
+                    showError('يرجى إدخال معرف اللعبة');
+                    return;
+                }
+                
+                if (!/^\d+$/.test(gameId)) {
+                    showError('معرف اللعبة يجب أن يكون رقماً فقط');
+                    return;
+                }
+                
+                fetchGameInfo(gameId);
+            });
+            
+            // دالة لجلب معلومات اللعبة من Steam API باستخدام CORS proxy
+            async function fetchGameInfo(gameId) {
+                showLoading();
+                hideError();
+                hideGameInfo();
+                
+                try {
+                    // استخدام CORS proxy لتجنب مشاكل CORS
+                    const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                    const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${gameId}`;
+                    
+                    const response = await fetch(proxyUrl + encodeURIComponent(steamUrl));
+                    
+                    if (!response.ok) {
+                        throw new Error('فشل في جلب البيانات من الخادم');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data[gameId] || !data[gameId].success) {
+                        throw new Error('لم يتم العثور على لعبة بهذا المعرف');
+                    }
+                    
+                    const gameData = data[gameId].data;
+                    
+                    // عرض البانر
+                    if (gameData.header_image) {
+                        gameBanner.src = gameData.header_image;
+                        bannerLink.href = gameData.header_image;
+                    } else {
+                        gameBanner.src = 'https://via.placeholder.com/616x353/2a475e/c7d5e0?text=لا+يوجد+بانر';
+                    }
+                    
+                    // عرض الوصف
+                    if (gameData.detailed_description) {
+                        // إزالة علامات HTML من الوصف
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = gameData.detailed_description;
+                        let cleanDescription = tempDiv.textContent || tempDiv.innerText || 'لا يوجد وصف متاح';
+                        
+                        // تقليل النص إذا كان طويلاً جداً
+                        if (cleanDescription.length > 2000) {
+                            cleanDescription = cleanDescription.substring(0, 2000) + '...';
+                        }
+                        
+                        gameDescription.textContent = cleanDescription;
+                    } else {
+                        gameDescription.textContent = 'لا يوجد وصف متاح لهذه اللعبة';
+                    }
+                    
+                    showGameInfo();
+                } catch (err) {
+                    console.error('Error:', err);
+                    showError('حدث خطأ: ' + err.message + '. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.');
+                } finally {
+                    hideLoading();
+                }
+            }
+            
+            // نسخ رابط البانر
+            copyBannerUrlBtn.addEventListener('click', function() {
+                const bannerUrl = gameBanner.src;
+                if (bannerUrl && !bannerUrl.includes('placeholder')) {
+                    copyToClipboard(bannerUrl, 'تم نسخ رابط البانر إلى الحافظة');
+                }
+            });
+            
+            // نسخ الوصف
+            copyDescriptionBtn.addEventListener('click', function() {
+                const description = gameDescription.textContent;
+                if (description && description !== 'لا يوجد وصف متاح لهذه اللعبة') {
+                    copyToClipboard(description, 'تم نسخ الوصف إلى الحافظة');
+                }
+            });
+            
+            // دالة مساعدة للنسخ إلى الحافظة
+            function copyToClipboard(text, successMessage) {
+                navigator.clipboard.writeText(text)
+                    .then(() => alert(successMessage))
+                    .catch(() => {
+                        // طريقة بديلة للنسخ
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            alert(successMessage);
+                        } catch (err) {
+                            alert('فشل نسخ النص، يرجى المحاولة يدوياً');
+                        }
+                        document.body.removeChild(textArea);
+                    });
+            }
+            
+            // دوال مساعدة للتحكم في عرض العناصر
+            function showLoading() {
+                loading.style.display = 'block';
+            }
+            
+            function hideLoading() {
+                loading.style.display = 'none';
+            }
+            
+            function showGameInfo() {
+                gameInfo.style.display = 'block';
+            }
+            
+            function hideGameInfo() {
+                gameInfo.style.display = 'none';
+            }
+            
+            function showError(message) {
+                error.textContent = message;
+                error.style.display = 'block';
+            }
+            
+            function hideError() {
+                error.style.display = 'none';
+            }
+            
+            // السماح بالبحث عند الضغط على Enter
+            gameIdInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchBtn.click();
+                }
+            });
+            
+            // تحميل تلقائي لمثال عند فتح الصفحة
+            gameIdInput.value = ' ';
+            // fetchGameInfo(''); // يمكنك إلغاء التعليق إذا أردت تحميل مثال تلقائياً
+        });
+    </script>
+</body>
+</html>
