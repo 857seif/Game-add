@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>منصة تحميل الألعاب</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background-color: #0b1221; color: #fff; font-family: 'Cairo', sans-serif; }
+  .card { background-color: #141b2d; border-radius: 1rem; box-shadow: 0 0 15px #00000055; padding: 1rem; }
+  .btn { background-color: #e11d48; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; transition: 0.2s; }
+  .btn:hover { background-color: #be123c; }
+  input, textarea { background-color: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 0.5rem; color: white; width: 100%; }
+  .game-card img { border-radius: 0.75rem; width: 100%; height: auto; cursor: pointer; }
+  .download-btn { background-color: #1d4ed8; border-radius: 0.5rem; padding: 0.4rem 0.8rem; margin: 0.2rem; display: inline-block; transition: 0.2s; }
+  .download-btn:hover { background-color: #2563eb; }
+  .download-links { display: none; margin-top: 10px; }
+  .show-download-btn { background-color: #10b981; border-radius: 0.5rem; padding: 0.5rem 1rem; margin: 10px 0; cursor: pointer; display: inline-block; }
+  .show-download-btn:hover { background-color: #059669; }
+</style>
+</head>
+<body class="p-4">
+  <h1 class="text-3xl text-center font-bold mb-6 text-pink-500">🎮 منصة تحميل الألعاب</h1>
+  
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card">
+      <h2 class="text-xl font-bold mb-4 border-b border-pink-700 pb-2">إضافة لعبة جديدة</h2>
+      <label>اسم اللعبة:</label>
+      <input id="gameName" placeholder="أدخل اسم اللعبة">
+      <label class="mt-2 block">رابط صورة اللعبة:</label>
+      <input id="gameImage" placeholder="أدخل رابط الصورة">
+      <label class="mt-2 block">وصف اللعبة:</label>
+      <textarea id="gameDesc" rows="3" placeholder="أدخل وصف اللعبة"></textarea>
+      <label class="mt-2 block text-pink-400">روابط التحميل (رابط واحد في كل سطر):</label>
+      <textarea id="gameLinks" rows="4" placeholder="https://1cloudfile.com/part1
+https://1cloudfile.com/part2
+..."></textarea>
+      <button class="btn mt-4 w-full" onclick="addGame()">➕ إضافة اللعبة</button>
+      <button class="mt-3 w-full bg-green-600 hover:bg-green-700 rounded p-2" onclick="exportHTML()">⬇️ تصدير جميع الألعاب</button>
+      <button class="mt-3 w-full bg-red-600 hover:bg-red-700 rounded p-2" onclick="clearAll()">🗑️ مسح جميع الألعاب</button>
+    </div>
+    
+    <div class="card">
+      <h2 class="text-xl font-bold mb-4 border-b border-pink-700 pb-2">الألعاب المضافة</h2>
+      <div id="gamesContainer" class="space-y-4 text-center text-gray-400">
+        <p>لا توجد ألعاب مضافة بعد.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let games = JSON.parse(localStorage.getItem('games')) || [];
+
+    function saveGames() {
+      localStorage.setItem('games', JSON.stringify(games));
+    }
+
+    function addGame() {
+      const name = document.getElementById('gameName').value.trim();
+      const img = document.getElementById('gameImage').value.trim();
+      const desc = document.getElementById('gameDesc').value.trim();
+      const links = document.getElementById('gameLinks').value.trim().split('\n').filter(x => x);
+      
+      if (!name || !img || links.length === 0) {
+        alert('من فضلك أدخل اسم اللعبة، الصورة، وروابط التحميل.');
+        return;
+      }
+      
+      const game = { name, img, desc, links };
+      games.push(game);
+      saveGames();
+      renderGames();
+      
+      document.getElementById('gameName').value = '';
+      document.getElementById('gameImage').value = '';
+      document.getElementById('gameDesc').value = '';
+      document.getElementById('gameLinks').value = '';
+    }
+
+    function clearAll() {
+      if (confirm('هل أنت متأكد أنك تريد مسح جميع الألعاب؟')) {
+        games = [];
+        saveGames();
+        renderGames();
+      }
+    }
+
+    function renderGames() {
+      const container = document.getElementById('gamesContainer');
+      if (games.length === 0) {
+        container.innerHTML = '<p>لا توجد ألعاب مضافة بعد.</p>';
+        return;
+      }
+
+      // نرسم الكروت
+      container.innerHTML = games.map((g, index) => `
+        <div class="game-card border border-gray-700 p-3 rounded-xl">
+          <h3 class="text-2xl font-bold mb-2 text-pink-400">${g.name}</h3>
+          <img src="${g.img}" alt="${g.name}" class="mb-3 game-img" data-index="${index}">
+          ${g.desc ? `<p class="text-gray-300 mb-2">${g.desc}</p>` : ''}
+          <button class="show-download-btn toggle-btn" data-index="${index}">اظهار روابط التحميل</button>
+          <div class="download-links" id="downloadLinks${index}">
+            ${g.links.map((l, i) => `<a href="${l}" target="_blank" class="download-btn">تحميل الجزء ${i+1}</a>`).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      // ربط الأحداث بعد الرسم
+      document.querySelectorAll('.toggle-btn, .game-img').forEach(el => {
+        el.addEventListener('click', e => {
+          const i = e.target.getAttribute('data-index');
+          toggleDownloadLinks(i);
+        });
+      });
+    }
+
+    function toggleDownloadLinks(index) {
+      const downloadLinks = document.getElementById(`downloadLinks${index}`);
+      downloadLinks.style.display = (downloadLinks.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function exportHTML() {
+      const gamesHTML = games.map((g, index) => `
+        <div style="background:#141b2d;border-radius:1rem;padding:1rem;margin-bottom:1rem;color:white;">
+          <h2 style="color:#f472b6;">${g.name}</h2>
+          <img src="${g.img}" style="max-width:100%;border-radius:10px;cursor:pointer;" onclick="toggleDownloadLinksExported(${index})">
+          ${g.desc ? `<p>${g.desc}</p>` : ''}
+          <button class="show-download-btn" onclick="toggleDownloadLinksExported(${index})" style="background-color:#10b981;border-radius:0.5rem;padding:0.5rem 1rem;margin:10px 0;cursor:pointer;display:inline-block;">اظهار روابط التحميل</button>
+          <div class="download-links" id="downloadLinksExported${index}" style="display:none;margin-top:10px;">
+            ${g.links.map((l, i) => `<a href="${l}" target="_blank" style="display:inline-block;margin:4px;padding:6px 12px;background:#1d4ed8;color:white;border-radius:6px;text-decoration:none;">تحميل ${i+1}</a>`).join('')}
+          </div>
+        </div>`).join('');
+      
+      const htmlFile = `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>موقع الألعاب</title>
+<style>
+body{background:#0b1221;color:white;font-family:'Cairo',sans-serif;padding:20px;}
+.download-links{display:none;margin-top:10px;}
+.show-download-btn{background-color:#10b981;border-radius:0.5rem;padding:0.5rem 1rem;margin:10px 0;cursor:pointer;display:inline-block;}
+.show-download-btn:hover{background-color:#059669;}
+</style>
+</head>
+<body>
+<h1 style="text-align:center;color:#f472b6;">🎮 مكتبة الألعاب الخاصة بك</h1>
+${gamesHTML}
+<script>
+function toggleDownloadLinksExported(index){
+ const el=document.getElementById('downloadLinksExported'+index);
+ el.style.display=(el.style.display==='block')?'none':'block';
+}
+<\/script>
+</body>
+</html>`;
+      
+      const blob = new Blob([htmlFile], {type: "text/html"});
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "games_site.html";
+      link.click();
+    }
+
+    // عند فتح الصفحة
+    renderGames();
+  </script>
+</body>
+</html>
